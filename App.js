@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, Image } from 'react-native';
 import { Camera } from 'expo-camera';
+import FormData from 'form-data'
 
 import axios from 'axios';
 
@@ -20,33 +21,44 @@ export default function App() {
 		})();
 	}, []);
 
+	// const uploadFile = async() => {
+	// 	const {image} = await axios.post(`${baseUrl}/uploadFile/`, {
+	// 		body: data2
+  	// 	}, {
+   	// 		headers: {
+    // 			'Content-Type': 'multipart/form-data'
+    // 		}
+  	// 	})
+	// }
+
 	const takePicture = async () => {
 		if (camera) {
 			const data = await camera.takePictureAsync(null)
 			setImage(data.uri);
-			let data2 = new FormData(data);
-		// 	axios.post({
-		// 		method: 'post',
-		// 		url: `${baseUrl}/uploadFile`,
-		// 		data: data
-		// 	  }, 
-		// 	  ).then((response) => {
-		// 		console.log(response.data);
-		// 		setText(JSON.stringify(response.data));
-		// 	  });
-		// }
 
-			const {image} = await axios.post(`${baseUrl}/uploadFile/`, {
-				body: data2
-  			}, {
-    			headers: {
-      				'Content-Type': 'multipart/form-data'
-    			}
-  			})
+			// let data1 = new FormData();
+			// data1.append('file', data.uri);
+
+			// let data2 = new FormData();
+			// data2.append('name', 'ImageUpload')
+			// data2.append('file_attachment', data.uri)
+			axios.post(
+				`${baseUrl}/uploadfile`,
+				data.uri, {
+				  	headers: {
+						'accept': 'application/json',
+    					'Accept-Language': 'en-US,en;q=0.8',
+						'Content-Type': 'multipart/form-data'
+					}
+				}
+			  ).then((response) => {
+				console.log(response.data);
+				setText(JSON.stringify(response.data));
+			  });
 		}
-	}
 
-	
+			
+	}
 
 	if (hasCameraPermission === false) {
 		return <Text>No access to camera</Text>;
@@ -71,8 +83,9 @@ export default function App() {
 				}}>
 			</Button>
 			<Button title="Take Picture" onPress={() => takePicture()} />
+			<Button title="Upload" onPress={() => uploadFile()}></Button>
 			<Text>{text}</Text>
-			{image && <Image id="img1" source={{uri: image}} style={{flex:1}}/>}
+			{image && <Image name='image' id="img1" source={{uri: image}} style={{flex:1}}/>}
 
 		</View>
 	);
