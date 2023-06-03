@@ -1,66 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, Image } from 'react-native';
+import { Button, Image, StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
-import FormData from 'form-data'
 
-import axios from 'axios';
-
-const baseUrl = 'http://192.168.1.3:8080'
+import { API_KEY } from './secrets';
 
 export default function App() {
-	const [hasCameraPermission, setHasCameraPermission] = useState(null);
-	const [text, setText] = useState('');
-	const [camera, setCamera] = useState(null);
-	const [image, setImage] = useState(null);
-	const [type, setType] = useState(Camera.Constants.Type.back);
+	const [ hasCameraPermission, setHasCameraPermission ] = useState( null );
+	const [ detectedText, setDetectedText ] = useState( null );
+	const [ detectedLabel, setDetectedLabel ] = useState( null );
+	const [ camera, setCamera ] = useState( null );
+	const [ image, setImage ] = useState( null );
+	const [ type, setType ] = useState( Camera.Constants.Type.back );
 
-	useEffect(() => {
-		(async () => {
+	useEffect( () => {
+		( async () => {
 			const cameraStatus = await Camera.requestCameraPermissionsAsync();
-			setHasCameraPermission(cameraStatus.status === 'granted');
-		})();
-	}, []);
+			setHasCameraPermission( cameraStatus.status === 'granted' );
+		} )();
+	}, [] );
 
-	// const uploadFile = async() => {
-	// 	const {image} = await axios.post(`${baseUrl}/uploadFile/`, {
-	// 		body: data2
-  	// 	}, {
-   	// 		headers: {
-    // 			'Content-Type': 'multipart/form-data'
-    // 		}
-  	// 	})
-	// }
+	const API_URL = `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`;
 
 	const takePicture = async () => {
-		if (camera) {
-			const data = await camera.takePictureAsync(null)
-			setImage(data.uri);
-
-			// let data1 = new FormData();
-			// data1.append('file', data.uri);
-
-			// let data2 = new FormData();
-			// data2.append('name', 'ImageUpload')
-			// data2.append('file_attachment', data.uri)
-			axios.post(
-				`${baseUrl}/uploadfile`,
-				data.uri, {
-				  	headers: {
-						'accept': 'application/json',
-    					'Accept-Language': 'en-US,en;q=0.8',
-						'Content-Type': 'multipart/form-data'
-					}
-				}
-			  ).then((response) => {
-				console.log(response.data);
-				setText(JSON.stringify(response.data));
-			  });
+		if ( camera ) {
+			const data = await camera.takePictureAsync( { base64: true } );
+			setImage( data.uri )
+			await callGoogleVisionAsync( data.base64 );
 		}
-
-			
 	}
 
-	if (hasCameraPermission === false) {
+	const generateBody = ( image ) => {
+		const body = {
+			requests: [
+				{
+					image: {
+						content: image,
+					},
+					features: [
+						{
+							type: "TEXT_DETECTION",
+							maxResults: 3,
+						},
+						{
+							type: "LABEL_DETECTION",
+							maxResults: 3
+						},
+					],
+				},
+			],
+		};
+		return body;
+	}
+
+	const callGoogleVisionAsync = async ( image ) => {
+		const body = generateBody( image );
+		const response = await fetch( API_URL, {
+			method: "POST",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify( body ),
+		} );
+		const result = await response.json();
+		console.log(result);
+		if ( result && result.responses ) {
+			res = result.responses[0];
+
+			if (res.fullTextAnnotation) {
+				setDetectedText( res.fullTextAnnotation );
+			} 
+			if ( res.labelAnnotations) {
+				// setDetectedText( res.labelAnnotations.map(item => item.description).join(',') );
+				let output = [];
+				for (let item of res.labelAnnotations) {
+					output.push(item.description);
+					console.log(item);
+				}
+				setDetectedLabel( output.join(", ") )
+			}
+		} else {
+			setDetectedText( {
+				text: "This image doesn't contain any text!"
+			} );
+		}
+	}
+
+	if ( hasCameraPermission === false ) {
 		return <Text>No access to camera</Text>;
 	}
 	return (
@@ -83,10 +109,9 @@ export default function App() {
 				}}>
 			</Button>
 			<Button title="Take Picture" onPress={() => takePicture()} />
-			<Button title="Upload" onPress={() => uploadFile()}></Button>
-			<Text>{text}</Text>
-			{image && <Image name='image' id="img1" source={{uri: image}} style={{flex:1}}/>}
-
+			<Text>{ detectedText && detectedText.text }</Text>
+			<Text>{ detectedLabel }</Text>
+			{image && <Image name='image' id="img1" source={{ uri: image }} style={{ flex: 1 }} />}
 		</View>
 	);
 }
@@ -99,4 +124,4 @@ const styles = StyleSheet.create({
 		flex: 1,
 		aspectRatio: 1
 	}
-})
+});
