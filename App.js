@@ -3,6 +3,7 @@ import { Button, Image, StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
 
 import { API_KEY } from './secrets';
+import Microphone from './Microphone';
 
 export default function App() {
 	const [ hasCameraPermission, setHasCameraPermission ] = useState( null );
@@ -111,7 +112,8 @@ export default function App() {
 			<Button title="Take Picture" onPress={() => takePicture()} />
 			<Text>{ detectedText && detectedText.text }</Text>
 			<Text>{ detectedLabel }</Text>
-			{image && <Image name='image' id="img1" source={{ uri: image }} style={{ flex: 1 }} />}
+			<Microphone />
+			{/* {image && <Image name='image' id="img1" source={{ uri: image }} style={{ flex: 1 }} />} */}
 		</View>
 	);
 }
