@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
+import { API_KEY } from './secrets';
+import { data } from './data';
 
 let uri = null;
 export default function Microphone() {
@@ -19,6 +21,8 @@ export default function Microphone() {
     const styles = {
         container: {}
     }
+
+    const BASE_URL = 'https://speech.googleapis.com/v1/speech:recognize';
 
     const recordingOptions = {
         // android not currently in use, but parameters are required
@@ -70,6 +74,38 @@ export default function Microphone() {
         });
         uri = recording.getURI();
         console.log('Recording stopped and stored at', uri);
+        TranscribeAudio().then(
+            r => console.log(r.results[0].alternatives[0].transcript),
+            e => console.log(e),
+        ).catch(
+            e => console.log(e)
+        );
+    }
+
+    const TranscribeAudio = async () => {
+        const request = {
+            config: {
+                encoding: 'FLAC',
+                sampleRateHertz: '16000',
+                languageCode: 'en-US'
+            },
+            audio: {
+                content: data
+            }
+        }
+
+        const response = await fetch(
+            `${BASE_URL}?key=${API_KEY}`, 
+            {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json; charset=base64',
+                }, 
+                body: JSON.stringify(request)
+            },
+        );
+        return response.json();
     }
 
     async function playSound() {
