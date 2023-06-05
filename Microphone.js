@@ -9,6 +9,7 @@ import axios from 'axios';
 let uri = null;
 export default function Microphone() {
     const [recording, setRecording] = React.useState();
+    const [speechOutput, setspeechOutput] = React.useState();
     const [sound, setSound] = React.useState(null)
 
     React.useEffect(() => {
@@ -79,7 +80,8 @@ export default function Microphone() {
         TranscribeAudio().then(
             (r) => {
                 console.log("success: ", r);
-                console.log(r.results[0].alternatives[0].transcript)
+                console.log("Speech", r.results[0].alternatives[0].transcript)
+                setspeechOutput(r.results[0].alternatives[0].transcript)
             }, (e) => {
                 console.log(e)
             },
@@ -161,6 +163,7 @@ export default function Microphone() {
                 onPress={recording ? stopRecording : startRecording}
             />
             <Button title="Play Sound" onPress={playSound} />
+            <Text>{speechOutput}</Text>
         </View>
     );
 }
