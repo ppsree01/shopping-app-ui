@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
     "axios": "^1.4.0",
+    "buffer": "^6.0.3",
     "expo": "~48.0.18",
     "expo-av": "~13.2.1",
     "expo-camera": "~13.2.1",
