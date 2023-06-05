@@ -3,6 +3,8 @@ import { Text, View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
 import { API_KEY } from './secrets';
 import { data } from './data';
+import { Buffer } from 'buffer';
+import axios from 'axios';
 
 let uri = null;
 export default function Microphone() {
@@ -11,12 +13,12 @@ export default function Microphone() {
 
     React.useEffect(() => {
         return sound
-          ? () => {
-              console.log('Unloading Sound');
-              sound.unloadAsync();
+            ? () => {
+                console.log('Unloading Sound');
+                sound.unloadAsync();
             }
-          : undefined;
-      }, [sound]);
+            : undefined;
+    }, [sound]);
 
     const styles = {
         container: {}
@@ -75,33 +77,67 @@ export default function Microphone() {
         uri = recording.getURI();
         console.log('Recording stopped and stored at', uri);
         TranscribeAudio().then(
-            r => console.log(r.results[0].alternatives[0].transcript),
-            e => console.log(e),
+            (r) => {
+                console.log("success: ", r);
+                console.log(r.results[0].alternatives[0].transcript)
+            }, (e) => {
+                console.log(e)
+            },
         ).catch(
             e => console.log(e)
         );
     }
 
     const TranscribeAudio = async () => {
+
+        const blobToBase64 = (blob) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            return new Promise((resolve) => {
+                reader.onloadend = () => {
+                    resolve(reader.result);
+                };
+            });
+        };
+
+        // Fetch audio binary blob data
+
+        const audioURI = uri;
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", audioURI, true);
+            xhr.send(null);
+        });
+        const audioBase64 = await blobToBase64(blob);
+        const d = audioBase64.toString().split("data:audio/vnd.wave;base64,")
+
+
         const request = {
             config: {
-                encoding: 'FLAC',
-                sampleRateHertz: '16000',
+                encoding: 'LINEAR16',
+                sampleRateHertz: '41000',
                 languageCode: 'en-US'
             },
             audio: {
-                content: data
+                content: d[1]
             }
         }
 
         const response = await fetch(
-            `${BASE_URL}?key=${API_KEY}`, 
+            `${BASE_URL}?key=${API_KEY}`,
             {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json; charset=base64',
-                }, 
+                },
                 body: JSON.stringify(request)
             },
         );
@@ -109,11 +145,11 @@ export default function Microphone() {
     }
 
     async function playSound() {
-        console.log( uri )
+        console.log(uri)
         console.log('Loading Sound');
-        const { sound } = await Audio.Sound.createAsync( {uri} );
+        const { sound } = await Audio.Sound.createAsync({ uri });
         setSound(sound);
-    
+
         console.log('Playing Sound');
         await sound.playAsync();
     }
