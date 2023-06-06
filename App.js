@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image, StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
+import { openBrowserAsync } from 'expo-web-browser';
+import { StatusBar } from 'expo-status-bar';
 
 import { API_KEY } from './secrets';
 import Microphone from './Microphone';
+
+const walmartAppUrl = 'https://www.walmart.com/';
+let searchUrl = '';
 
 export default function App() {
 	const [ hasCameraPermission, setHasCameraPermission ] = useState( null );
@@ -79,6 +84,16 @@ export default function App() {
 					console.log(item);
 				}
 				setDetectedLabel( output.join(", ") )
+				
+
+				const closestResults = () => {
+					output.sort((a, b) => a.score > b.score)
+				}
+				console.log(output);
+
+				searchUrl = walmartAppUrl + 'search?q=' + output[0] + '+' + output[1];
+
+				openBrowserAsync(searchUrl);
 			}
 		} else {
 			setDetectedText( {
@@ -114,6 +129,10 @@ export default function App() {
 			<Text>{ detectedLabel }</Text>
 			<Microphone />
 			{/* {image && <Image name='image' id="img1" source={{ uri: image }} style={{ flex: 1 }} />} */}
+			<View style={styles.container}>
+		      <Button title="Walmart App" onPress={() => openBrowserAsync("https://www.walmart.com/")} />
+		      <StatusBar style="auto" />
+			</View>
 		</View>
 	);
 }
