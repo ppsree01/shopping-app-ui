@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image, StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
+import { openBrowserAsync } from 'expo-web-browser';
+import { StatusBar } from 'expo-status-bar';
 
 import { API_KEY } from './secrets';
 import Microphone from './Microphone';
+
+const walmartAppUrl = 'https://www.walmart.com/';
+let searchUrl = '';
 
 export default function App() {
 	const [ hasCameraPermission, setHasCameraPermission ] = useState( null );
@@ -40,11 +45,11 @@ export default function App() {
 					features: [
 						{
 							type: "TEXT_DETECTION",
-							maxResults: 3,
+							maxResults: 2,
 						},
 						{
 							type: "LABEL_DETECTION",
-							maxResults: 3
+							maxResults: 2
 						},
 					],
 				},
@@ -54,6 +59,9 @@ export default function App() {
 	}
 
 	const callGoogleVisionAsync = async ( image ) => {
+
+		searchUrl = walmartAppUrl + 'search?q='
+
 		const body = generateBody( image );
 		const response = await fetch( API_URL, {
 			method: "POST",
@@ -70,6 +78,10 @@ export default function App() {
 
 			if (res.fullTextAnnotation) {
 				setDetectedText( res.fullTextAnnotation );
+				console.log(res.fullTextAnnotation);
+				// most images dont have text, so this can be an empty object
+				let text = res.fullTextAnnotation?.text;
+				searchUrl += text ? text + '+' : '';
 			} 
 			if ( res.labelAnnotations) {
 				// setDetectedText( res.labelAnnotations.map(item => item.description).join(',') );
@@ -79,6 +91,17 @@ export default function App() {
 					console.log(item);
 				}
 				setDetectedLabel( output.join(", ") )
+				
+
+				const closestResults = () => {
+					output.sort((a, b) => a.score > b.score)
+				}
+				closestResults();
+				console.log(output);
+
+				searchUrl += output[0] + '+' + output[1];
+
+				openBrowserAsync(searchUrl);
 			}
 		} else {
 			setDetectedText( {
@@ -99,6 +122,8 @@ export default function App() {
 					type={type}
 					ratio={'1:1'} />
 			</View>
+			{/* Space for output */}
+			
 			<Button
 				title="Flip Image"
 				onPress={() => {
@@ -114,6 +139,10 @@ export default function App() {
 			<Text>{ detectedLabel }</Text>
 			<Microphone />
 			{/* {image && <Image name='image' id="img1" source={{ uri: image }} style={{ flex: 1 }} />} */}
+			<View style={styles.container}>
+		      <Button title="Walmart App" onPress={() => openBrowserAsync("https://www.walmart.com/")} />
+		      <StatusBar style="auto" />
+			</View>
 		</View>
 	);
 }

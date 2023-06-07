@@ -5,8 +5,12 @@ import { API_KEY } from './secrets';
 import { data } from './data';
 import { Buffer } from 'buffer';
 import axios from 'axios';
+import { openBrowserAsync } from 'expo-web-browser';
 
 let uri = null;
+const walmartAppUrl = 'https://www.walmart.com/';
+let searchUrl = '';
+
 export default function Microphone() {
     const [recording, setRecording] = React.useState();
     const [speechOutput, setspeechOutput] = React.useState();
@@ -77,11 +81,15 @@ export default function Microphone() {
         });
         uri = recording.getURI();
         console.log('Recording stopped and stored at', uri);
+        searchUrl = walmartAppUrl + 'search?q=';
         TranscribeAudio().then(
             (r) => {
                 console.log("success: ", r);
                 console.log("Speech", r.results[0].alternatives[0].transcript)
                 setspeechOutput(r.results[0].alternatives[0].transcript)
+                let speechOutput = r.results[0].alternatives[0].transcript;
+                searchUrl += speechOutput; 
+                openBrowserAsync(searchUrl);
             }, (e) => {
                 console.log(e)
             },
@@ -148,6 +156,10 @@ export default function Microphone() {
 
     async function playSound() {
         console.log(uri)
+
+        if (!uri) {
+            return;
+        }
         console.log('Loading Sound');
         const { sound } = await Audio.Sound.createAsync({ uri });
         setSound(sound);
