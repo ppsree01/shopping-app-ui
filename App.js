@@ -7,8 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 
 import { API_KEY } from './secrets';
 import Microphone from './Microphone';
-import AzSearch from './AzSearch';
 import AzureCognitiveSearch from './AzureCognitiveSearch';
+import { ScrollView } from 'react-native-web';
 
 const walmartAppUrl = 'https://www.walmart.com/';
 let searchUrl = '';
@@ -156,8 +156,7 @@ export default function App() {
 				style={{ width: 100, height: 100, borderColor: 'white', borderWidth: 1 }}
 			/>
 			</View>
-			{/* <AzSearch /> */}
-			<AzureCognitiveSearch keyword="black shoe" index="azureblob-index" endpoint='talktech2023' />
+			<AzureCognitiveSearch keyword={"black shoe"} index={"azureblob-index"} endpoint={'talktech2023'} />
 			{/* <WebView
 				style={styles.WebViewStyle}
 				//Loading html file from project folder
