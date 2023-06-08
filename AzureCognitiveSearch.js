@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { View, Button, ScrollView, Text } from "react-native";
+import React, { useState } from "react";
+import { Modal, Pressable, View, Button, ScrollView, Text } from "react-native";
 import { QUERY_KEY } from "./secrets";
 
 export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
@@ -33,19 +33,28 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
     };
 
     const initiateAzureCognitiveSearch = () => {
+        if (!keyword) {
+            setUpdate(`Say something to initiate search`);
+            return
+        }
         setUpdate(`Initiating Azure Cognitive Search for ${keyword} ...`);
         getSearchResults().then(
             r => {
                 let output = [];
                 for (let item of r.value) {
                     output.push({
+                        title: item.title,
+                        price: item.price, 
+                        currency: item.currency,
+                        avgRating: item.avg_rating,
+                        reviewCount: item.reviews_count,
                         image: item.main_image,
                         brand: item.brand,
                         searchScore: item["@search.score"]
                     });
                     console.log(output);
                     setUpdate(`Updated results`);
-                    setOutput(JSON.stringify(output));
+                    setOutput(JSON.stringify(output[0]));
                 }
             }
         ).catch(
@@ -59,9 +68,10 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
 
     styles = {
         container: {
-            maxHeight: '20%',
+            fontSize: '110%',
+            maxHeight: '30%',
             alignSelf: 'center',
-        }
+        },
     }
 
     return (
@@ -72,7 +82,7 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
             <Text>{output.length > 0 && output}</Text>
             </ScrollView>
            <Button title="Azure Cognitive Search" onPress={() => initiateAzureCognitiveSearch()}></Button>
-           <Button title="Clear Output" onPress={() => {setUpdate(''); setOutput('')}}></Button>
+           <Button title="Clear Cognitive Search Output" onPress={() => {setUpdate(''); setOutput('')}}></Button>
         </View>
     )
 }

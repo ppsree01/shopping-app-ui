@@ -156,7 +156,7 @@ export default function App() {
 				style={{ width: 100, height: 100, borderColor: 'white', borderWidth: 1 }}
 			/>
 			</View>
-			<AzureCognitiveSearch keyword={"black shoe"} index={"azureblob-index"} endpoint={'talktech2023'} />
+			{/* <AzureCognitiveSearch keyword={"black shoe"} index={"azureblob-index"} endpoint={'talktech2023'} /> */}
 			{/* <WebView
 				style={styles.WebViewStyle}
 				//Loading html file from project folder
