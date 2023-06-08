@@ -26,7 +26,11 @@ export default function Microphone() {
     }, [sound]);
 
     const styles = {
-        container: {}
+        container: {
+            flex: 1,
+            alignItems: 'center',
+            alignSelf: 'center'
+        }
     }
 
     const BASE_URL = 'https://speech.googleapis.com/v1/speech:recognize';
@@ -175,7 +179,9 @@ export default function Microphone() {
                 onPress={recording ? stopRecording : startRecording}
             />
             <Button title="Play Sound" onPress={playSound} />
+            <Button title="Clear Audio Output" onPress={() => setspeechOutput('')}></Button>
             <Text>{speechOutput}</Text>
+			<AzureCognitiveSearch keyword={speechOutput} index={"azureblob-index"} endpoint={'talktech2023'} />
         </View>
     );
 }
