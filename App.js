@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image, StyleSheet, Text, View } from 'react-native';
+import WebView from 'react-native-webview'
 import { Camera } from 'expo-camera';
 import { openBrowserAsync } from 'expo-web-browser';
 import { StatusBar } from 'expo-status-bar';
@@ -123,9 +124,10 @@ export default function App() {
 					ratio={'1:1'} />
 			</View>
 			{/* Space for output */}
-			
+		
 			<Button
-				title="Flip Image"
+				title="Flip Camera"
+				color = "#7627b8"
 				onPress={() => {
 					setType(
 						type === Camera.Constants.Type.back
@@ -143,6 +145,24 @@ export default function App() {
 		      <Button title="Walmart App" onPress={() => openBrowserAsync("https://www.walmart.com/")} />
 		      <StatusBar style="auto" />
 			</View>
+			<View style={styles.logoContainer}>
+			<Image
+				source={{
+					uri:
+						'https://pbs.twimg.com/profile_images/1290311407620120576/my8W0K5V_400x400.jpg',
+				}}
+				style={{ width: 100, height: 100, borderColor: 'white', borderWidth: 1 }}
+			/>
+			</View>
+			<WebView
+				style={styles.WebViewStyle}
+				//Loading html file from project folder
+				source={require('./azsearchjsApp.html')}
+				//Enable Javascript support
+				javaScriptEnabled={true}
+				//For the Cache
+				domStorageEnabled={true}
+			/>
 		</View>
 	);
 }
@@ -154,5 +174,19 @@ const styles = StyleSheet.create({
 	fixedRatio: {
 		flex: 1,
 		aspectRatio: 1
+	},
+	WebViewStyle: {
+		justifyContent: 'center',
+		alignItems: 'center',
+		flex: 1,
+		marginTop: 30,
+	  },
+	logoContainer: {
+		flex: .3,
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingTop: 3,
+		backgroundColor: 'white',
+		padding: 8,
 	}
 });
