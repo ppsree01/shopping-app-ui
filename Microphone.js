@@ -93,7 +93,7 @@ export default function Microphone() {
                 setspeechOutput(r.results[0].alternatives[0].transcript)
                 let speechOutput = r.results[0].alternatives[0].transcript;
                 searchUrl += speechOutput; 
-                // openBrowserAsync(searchUrl);
+                openBrowserAsync(searchUrl);
             }, (e) => {
                 console.log(e)
             },
