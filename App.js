@@ -122,11 +122,10 @@ export default function App() {
 					type={type}
 					ratio={'1:1'} />
 			</View>
-			{/* Space for output */}
 		
 			<Button
 				title="Flip Camera"
-				color = "#7627b8"
+				color = "#0de668"
 				onPress={() => {
 					setType(
 						type === Camera.Constants.Type.back
@@ -135,15 +134,10 @@ export default function App() {
 					);
 				}}>
 			</Button>
-			<Button title="Take Picture" onPress={() => takePicture()} />
+			<Button title="Take Picture" color="#0de668" onPress={() => takePicture()} />
 			<Text>{ detectedText && detectedText.text }</Text>
 			<Text>{ detectedLabel }</Text>
 			<Microphone />
-			{/* {image && <Image name='image' id="img1" source={{ uri: image }} style={{ flex: 1 }} />} */}
-			<View style={styles.container}>
-		      {/* <Button title="Walmart App" onPress={() => openBrowserAsync("https://www.walmart.com/")} /> */}
-		      {/* <StatusBar style="auto" /> */}
-			</View>
 			<View style={styles.logoContainer}>
 				<Pressable style={styles.button}>
 					<Image

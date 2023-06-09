@@ -201,6 +201,7 @@ export default function Microphone() {
         },
         playSoundButton: {
             width: '33%',
+            height: 65,
             alignItems: 'center',
             justifyContent: 'center',
             paddingVertical: 12,
@@ -211,6 +212,7 @@ export default function Microphone() {
         },
         clearButton: {
             width: '33%',
+            height: 65,
             alignItems: 'center',
             justifyContent: 'center',
             paddingVertical: 12,
@@ -235,10 +237,10 @@ export default function Microphone() {
                     <Text style={styles.text}>{recording ? 'Stop' : 'Record'}</Text>
                 </Pressable>
                 <Pressable style={styles.playSoundButton} onPress={playSound}>
-                    <Text style={styles.text}>{'Play Sound'}</Text>
+                    <Text style={styles.text}>{'Play'}</Text>
                 </Pressable>
                 <Pressable style={styles.clearButton} onPress={() => setspeechOutput('')}>
-                    <Text style={styles.text}>{'Clear Output'}</Text>
+                    <Text style={styles.text}>{'Clear'}</Text>
                 </Pressable>
             </View>
             <View style={styles.outputContainer}>
