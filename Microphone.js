@@ -181,7 +181,7 @@ export default function Microphone() {
             fontSize: '110%',
             maxHeight: '30%',
             alignSelf: 'center',
-            padding: '4%',
+            padding: '2%',
         },
         buttonView: {
             flexDirection: 'row',

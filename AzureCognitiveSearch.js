@@ -84,7 +84,7 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
     styles = {
         container: {
             fontSize: '110%',
-            maxHeight: '30%',
+            maxHeight: '40%',
             alignSelf: 'center',
             borderWidth: output.length > 0 ? 3 : 0,
             width: '90%',
