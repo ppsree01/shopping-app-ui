@@ -5,6 +5,7 @@ import { API_KEY } from './secrets';
 import { data } from './data';
 import { Buffer } from 'buffer';
 import axios from 'axios';
+import AzureCognitiveSearch from './AzureCognitiveSearch';
 import { openBrowserAsync } from 'expo-web-browser';
 
 let uri = null;

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image, StyleSheet, Text, View } from 'react-native';
-import { WebView } from 'react-native-webview'
 import { Camera } from 'expo-camera';
 import { openBrowserAsync } from 'expo-web-browser';
 import { StatusBar } from 'expo-status-bar';
 
 import { API_KEY } from './secrets';
 import Microphone from './Microphone';
-import AzureCognitiveSearch from './AzureCognitiveSearch';
-import { ScrollView } from 'react-native-web';
 
 const walmartAppUrl = 'https://www.walmart.com/';
 let searchUrl = '';
@@ -148,24 +145,14 @@ export default function App() {
 		      <StatusBar style="auto" />
 			</View>
 			<View style={styles.logoContainer}>
-			<Image
+			{/* <Image
 				source={{
 					uri:
 						'https://pbs.twimg.com/profile_images/1290311407620120576/my8W0K5V_400x400.jpg',
 				}}
 				style={{ width: 100, height: 100, borderColor: 'white', borderWidth: 1 }}
-			/>
-			</View>
-			{/* <AzureCognitiveSearch keyword={"black shoe"} index={"azureblob-index"} endpoint={'talktech2023'} /> */}
-			{/* <WebView
-				style={styles.WebViewStyle}
-				//Loading html file from project folder
-				source={require('./azsearchjsApp.html')}
-				//Enable Javascript support
-				javaScriptEnabled={true}
-				//For the Cache
-				domStorageEnabled={true}
 			/> */}
+			</View>
 		</View>
 	);
 }

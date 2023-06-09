@@ -53,8 +53,23 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
                         searchScore: item["@search.score"]
                     });
                     console.log(output);
-                    setUpdate(`Updated results`);
-                    setOutput(JSON.stringify(output[0]));
+                    let formatted = ''
+                    setUpdate('');
+                    let count = 2;
+                    for (let item of output) {
+                        count -= 1
+                        formatted += '{\n'
+                        for (let key in item) {
+                            formatted += `\t${key}: ${item[key]}\n`
+                        }
+                        formatted += '}\n'
+                        formatted += '--------------------\n'
+                        if (count == 0) {
+                            break;
+                        }
+                    }
+                    // setOutput(JSON.stringify(output[0]));
+                    setOutput(formatted);
                 }
             }
         ).catch(
