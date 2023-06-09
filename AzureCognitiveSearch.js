@@ -44,7 +44,7 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
                 for (let item of r.value) {
                     output.push({
                         title: item.title,
-                        price: item.price, 
+                        price: item.price,
                         currency: item.currency,
                         avgRating: item.avg_rating,
                         reviewCount: item.reviews_count,
@@ -53,8 +53,23 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
                         searchScore: item["@search.score"]
                     });
                     console.log(output);
-                    setUpdate(`Updated results`);
-                    setOutput(JSON.stringify(output[0]));
+                    let formatted = ''
+                    setUpdate('');
+                    let count = 2;
+                    for (let item of output) {
+                        count -= 1
+                        formatted += '{\n'
+                        for (let key in item) {
+                            formatted += `\t${key}: ${item[key]}\n`
+                        }
+                        formatted += '}\n'
+                        formatted += '--------------------\n'
+                        if (count == 0) {
+                            break;
+                        }
+                    }
+                    // setOutput(JSON.stringify(output[0]));
+                    setOutput(formatted + '\n\n');
                 }
             }
         ).catch(
@@ -69,20 +84,70 @@ export default AzureCognitiveSearch = ({ keyword, endpoint, index }) => {
     styles = {
         container: {
             fontSize: '110%',
-            maxHeight: '30%',
+            maxHeight: '40%',
             alignSelf: 'center',
+            borderWidth: output.length > 0 ? 3 : 0,
+            width: '90%',
+            padding: '8%',
+            marginBottom: '3%',
+            borderRadius: '5px',
+            borderColor: '#aabbcc'
+            
+        },
+
+        mainContainer: {
+
+        },
+        buttonView: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+
+        },
+        button: {
+            width: '50%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 12,
+            paddingHorizontal: 32,
+            borderRadius: 4,
+            elevation: 3,
+            backgroundColor: '#081d41',
+        },
+        clearButton: {
+            width: '50%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 23,
+            paddingHorizontal: 32,
+            borderRadius: 4,
+            elevation: 3,
+            backgroundColor: '#c1b9b4',
+        },
+        text: {
+            fontSize: 16,
+            lineHeight: 21,
+            fontWeight: 'bold',
+            letterSpacing: 0.25,
+            color: 'white',
         },
     }
 
     return (
         <View>
-           <Text>{update}</Text>
-           <Text>{output.length > 0 && header}</Text>
+            <Text>{update}</Text>
+            <Text>{output.length > 0 && header}</Text>
             <ScrollView style={styles.container}>
-            <Text>{output.length > 0 && output}</Text>
+                <Text>{output.length > 0 && output}</Text>
             </ScrollView>
-           <Button title="Azure Cognitive Search" onPress={() => initiateAzureCognitiveSearch()}></Button>
-           <Button title="Clear Cognitive Search Output" onPress={() => {setUpdate(''); setOutput('')}}></Button>
+            <View style={styles.buttonView}>
+                <Pressable style={styles.button} onPress={() => initiateAzureCognitiveSearch()}>
+                    <Text style={styles.text}>Customer Review Search</Text>
+                </Pressable>
+                <Pressable style={styles.clearButton} onPress={() => { setUpdate(''); setOutput(''); }}>
+                    <Text style={styles.text}>Clear Search</Text>
+                </Pressable>
+            </View>
         </View>
     )
 }

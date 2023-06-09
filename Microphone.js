@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
 import { API_KEY } from './secrets';
 import { data } from './data';
 import { Buffer } from 'buffer';
 import axios from 'axios';
+import AzureCognitiveSearch from './AzureCognitiveSearch';
 import { openBrowserAsync } from 'expo-web-browser';
 
 let uri = null;
@@ -15,6 +16,7 @@ export default function Microphone() {
     const [recording, setRecording] = React.useState();
     const [speechOutput, setspeechOutput] = React.useState();
     const [sound, setSound] = React.useState(null)
+    const [progress, setProgress] = React.useState('');
 
     React.useEffect(() => {
         return sound
@@ -25,13 +27,7 @@ export default function Microphone() {
             : undefined;
     }, [sound]);
 
-    const styles = {
-        container: {
-            flex: 1,
-            alignItems: 'center',
-            alignSelf: 'center'
-        }
-    }
+    
 
     const BASE_URL = 'https://speech.googleapis.com/v1/speech:recognize';
 
@@ -59,6 +55,8 @@ export default function Microphone() {
 
     async function startRecording() {
         try {
+            setProgress('Recording Audio...');
+            setspeechOutput('');
             console.log('Requesting permissions..');
             await Audio.requestPermissionsAsync();
             await Audio.setAudioModeAsync({
@@ -78,6 +76,7 @@ export default function Microphone() {
 
     async function stopRecording() {
         console.log('Stopping recording..');
+        setProgress('');
         setRecording(undefined);
         await recording.stopAndUnloadAsync();
         await Audio.setAudioModeAsync({
@@ -172,15 +171,82 @@ export default function Microphone() {
         await sound.playAsync();
     }
 
+    const styles = {
+        container: {
+            flex: 1,
+            alignItems: 'center',
+            alignSelf: 'center'
+        },
+        outputContainer: {
+            fontSize: '110%',
+            maxHeight: '30%',
+            alignSelf: 'center',
+            padding: '2%',
+        },
+        buttonView: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        button: {
+            width: '33%',
+            height: 65,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 12,
+            paddingHorizontal: 22,
+            borderRadius: 4,
+            elevation: 3,
+            backgroundColor: '#081d41',
+        },
+        playSoundButton: {
+            width: '33%',
+            height: 65,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 12,
+            paddingHorizontal: 22,
+            borderRadius: 4,
+            elevation: 3,
+            backgroundColor: '#0de668',
+        },
+        clearButton: {
+            width: '33%',
+            height: 65,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 12,
+            paddingHorizontal: 22,
+            borderRadius: 4,
+            elevation: 3,
+            backgroundColor: '#c1b9b4',
+        },
+        text: {
+            fontSize: 16,
+            lineHeight: 21,
+            fontWeight: 'bold',
+            letterSpacing: 0.25,
+            color: 'white',
+        },
+    }
+
     return (
         <View style={styles.container}>
-            <Button
-                title={recording ? 'Stop Recording' : 'Start Recording'}
-                onPress={recording ? stopRecording : startRecording}
-            />
-            <Button title="Play Sound" onPress={playSound} />
-            <Button title="Clear Audio Output" onPress={() => setspeechOutput('')}></Button>
-            <Text>{speechOutput}</Text>
+            <View style={styles.buttonView}>
+                <Pressable style={styles.button} onPress={recording ? stopRecording : startRecording}>
+                    <Text style={styles.text}>{recording ? 'Stop' : 'Record'}</Text>
+                </Pressable>
+                <Pressable style={styles.playSoundButton} onPress={playSound}>
+                    <Text style={styles.text}>{'Play'}</Text>
+                </Pressable>
+                <Pressable style={styles.clearButton} onPress={() => setspeechOutput('')}>
+                    <Text style={styles.text}>{'Clear'}</Text>
+                </Pressable>
+            </View>
+            <View style={styles.outputContainer}>
+                <Text>{progress}</Text>
+                <Text>{speechOutput}</Text>
+            </View>
 			<AzureCognitiveSearch keyword={speechOutput} index={"azureblob-index"} endpoint={'talktech2023'} />
         </View>
     );
