@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Button, Pressable } from 'react-native';
+import { Text, View, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
 import { API_KEY } from './secrets';
-import { data } from './data';
-import { Buffer } from 'buffer';
-import axios from 'axios';
+import { styles } from './styles';
 import AzureCognitiveSearch from './AzureCognitiveSearch';
 import { openBrowserAsync } from 'expo-web-browser';
 
@@ -12,11 +10,10 @@ let uri = null;
 const walmartAppUrl = 'https://www.walmart.com/';
 let searchUrl = '';
 
-export default function Microphone() {
+export default function Microphone({ setOutputString, setProgress, setSearchParam }) {
     const [recording, setRecording] = React.useState();
     const [speechOutput, setspeechOutput] = React.useState();
     const [sound, setSound] = React.useState(null)
-    const [progress, setProgress] = React.useState('');
 
     React.useEffect(() => {
         return sound
@@ -26,8 +23,6 @@ export default function Microphone() {
             }
             : undefined;
     }, [sound]);
-
-    
 
     const BASE_URL = 'https://speech.googleapis.com/v1/speech:recognize';
 
@@ -65,16 +60,19 @@ export default function Microphone() {
             });
 
             console.log('Starting recording..');
-            // const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+            setProgress('Starting recording ...');
             const { recording } = await Audio.Recording.createAsync(recordingOptions);
             setRecording(recording);
+            setProgress('Recording started ... ');
             console.log('Recording started');
         } catch (err) {
             console.error('Failed to start recording', err);
+            setProgress('Failed to start recording');
         }
     }
 
     async function stopRecording() {
+        setProgress('Stopping recording ... ');
         console.log('Stopping recording..');
         setProgress('');
         setRecording(undefined);
@@ -91,6 +89,8 @@ export default function Microphone() {
                 console.log("Speech", r.results[0].alternatives[0].transcript)
                 setspeechOutput(r.results[0].alternatives[0].transcript)
                 let speechOutput = r.results[0].alternatives[0].transcript;
+                setOutputString(speechOutput);
+                setSearchParam(speechOutput);
                 searchUrl += speechOutput; 
                 openBrowserAsync(searchUrl);
             }, (e) => {
@@ -102,7 +102,7 @@ export default function Microphone() {
     }
 
     const TranscribeAudio = async () => {
-
+        setProgress('Processing audio ...');
         const blobToBase64 = (blob) => {
             const reader = new FileReader();
             reader.readAsDataURL(blob);
@@ -114,7 +114,6 @@ export default function Microphone() {
         };
 
         // Fetch audio binary blob data
-
         const audioURI = uri;
         const blob = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -130,7 +129,6 @@ export default function Microphone() {
         });
         const audioBase64 = await blobToBase64(blob);
         const d = audioBase64.toString().split("data:audio/vnd.wave;base64,")
-
 
         const request = {
             config: {
@@ -158,96 +156,100 @@ export default function Microphone() {
     }
 
     async function playSound() {
+
         console.log(uri)
 
         if (!uri) {
+            setProgress('No audio file found. Record audio and try again');
             return;
         }
+        setProgress('Loading Sound');
         console.log('Loading Sound');
         const { sound } = await Audio.Sound.createAsync({ uri });
         setSound(sound);
 
+        setProgress('Playing Sound')
         console.log('Playing Sound');
         await sound.playAsync();
     }
 
-    const styles = {
-        container: {
-            flex: 1,
-            alignItems: 'center',
-            alignSelf: 'center'
-        },
-        outputContainer: {
-            fontSize: '110%',
-            maxHeight: '30%',
-            alignSelf: 'center',
-            padding: '2%',
-        },
-        buttonView: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-        },
-        button: {
-            width: '33%',
-            height: 65,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 12,
-            paddingHorizontal: 22,
-            borderRadius: 4,
-            elevation: 3,
-            backgroundColor: '#081d41',
-        },
-        playSoundButton: {
-            width: '33%',
-            height: 65,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 12,
-            paddingHorizontal: 22,
-            borderRadius: 4,
-            elevation: 3,
-            backgroundColor: '#0de668',
-        },
-        clearButton: {
-            width: '33%',
-            height: 65,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 12,
-            paddingHorizontal: 22,
-            borderRadius: 4,
-            elevation: 3,
-            backgroundColor: '#c1b9b4',
-        },
-        text: {
-            fontSize: 16,
-            lineHeight: 21,
-            fontWeight: 'bold',
-            letterSpacing: 0.25,
-            color: 'white',
-        },
-    }
+    // const styles = {
+    //     container: {
+    //         flex: 1,
+    //         alignItems: 'center',
+    //         alignSelf: 'center'
+    //     },
+    //     outputContainer: {
+    //         fontSize: '110%',
+    //         maxHeight: '30%',
+    //         alignSelf: 'center',
+    //         padding: '2%',
+    //     },
+    //     buttonView: {
+    //         flexDirection: 'row',
+    //         alignItems: 'center',
+    //         justifyContent: 'space-between',
+    //     },
+    //     button: {
+    //         width: '33%',
+    //         height: 65,
+    //         alignItems: 'center',
+    //         justifyContent: 'center',
+    //         paddingVertical: 12,
+    //         paddingHorizontal: 22,
+    //         borderRadius: 4,
+    //         elevation: 3,
+    //         backgroundColor: '#081d41',
+    //     },
+    //     playSoundButton: {
+    //         width: '33%',
+    //         height: 65,
+    //         alignItems: 'center',
+    //         justifyContent: 'center',
+    //         paddingVertical: 12,
+    //         paddingHorizontal: 22,
+    //         borderRadius: 4,
+    //         elevation: 3,
+    //         backgroundColor: '#0de668',
+    //     },
+    //     clearButton: {
+    //         width: '33%',
+    //         height: 65,
+    //         alignItems: 'center',
+    //         justifyContent: 'center',
+    //         paddingVertical: 12,
+    //         paddingHorizontal: 22,
+    //         borderRadius: 4,
+    //         elevation: 3,
+    //         backgroundColor: '#c1b9b4',
+    //     },
+    //     text: {
+    //         fontSize: 16,
+    //         lineHeight: 21,
+    //         fontWeight: 'bold',
+    //         letterSpacing: 0.25,
+    //         color: 'white',
+    //     },
+    // }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.buttonView}>
-                <Pressable style={styles.button} onPress={recording ? stopRecording : startRecording}>
+        <View style={styles.audioContainer}>
+            <View style={styles.audioButtonView}>
+                <Pressable style={styles.primaryButton} onPress={recording ? stopRecording : startRecording}>
                     <Text style={styles.text}>{recording ? 'Stop' : 'Record'}</Text>
                 </Pressable>
-                <Pressable style={styles.playSoundButton} onPress={playSound}>
+                <Pressable style={styles.secondaryButton} onPress={playSound}>
                     <Text style={styles.text}>{'Play'}</Text>
                 </Pressable>
-                <Pressable style={styles.clearButton} onPress={() => setspeechOutput('')}>
+                {/* <Pressable style={styles.clearButton} onPress={() => setspeechOutput('')}>
                     <Text style={styles.text}>{'Clear'}</Text>
-                </Pressable>
+                </Pressable> */}
             </View>
-            <View style={styles.outputContainer}>
+            {/* <View style={styles.outputContainer}>
                 <Text>{progress}</Text>
                 <Text>{speechOutput}</Text>
-            </View>
-			<AzureCognitiveSearch keyword={speechOutput} index={"azureblob-index"} endpoint={'talktech2023'} />
+            </View> */}
+			{/* <AzureCognitiveSearch keyword={speechOutput} index={"azureblob-index"} endpoint={'talktech2023'} /> */}
         </View>
     );
 }
