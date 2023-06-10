@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { View, Button, Text } from "react-native";
 import { openBrowserAsync } from 'expo-web-browser';
 
-export default CustomCamera = ({ setOutputString, setProgress }) => {
+export default CustomCamera = ({ setOutputString, setProgress, setSearchParam }) => {
 	const [ hasCameraPermission, setHasCameraPermission ] = useState( null );
 	const [ detectedText, setDetectedText ] = useState( null );
 	const [ detectedLabel, setDetectedLabel ] = useState( null );
@@ -86,6 +86,7 @@ export default CustomCamera = ({ setOutputString, setProgress }) => {
         setProgress('Processing Image ...');
 		const result = await response.json();
 		console.log(result);
+		setSearchParam('')
 		if ( result && result.responses ) {
             setProgress('------Camera Output------');
 			res = result.responses[0];
@@ -112,6 +113,7 @@ export default CustomCamera = ({ setOutputString, setProgress }) => {
 				}
                 outputString += output.length > 0 ? output.join(", ") : "None";
 				setDetectedLabel( output.join(", ") );
+				setSearchParam(output.join(" "));
 
 				const closestResults = () => {
 					output.sort((a, b) => a.score > b.score)
@@ -125,6 +127,7 @@ export default CustomCamera = ({ setOutputString, setProgress }) => {
 				openBrowserAsync(searchUrl);
 			}
 		} else {
+			setSearchParam('');
 			setDetectedText( {
 				text: "This image doesn't contain any text!"
 			} );

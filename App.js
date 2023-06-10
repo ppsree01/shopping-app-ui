@@ -15,7 +15,8 @@ export default function App() {
 		<View style={{ flex: 1 }}>
 			<CustomCamera 
 				setOutputString={setOutputString} 
-				setProgress={setProgress} />
+				setProgress={setProgress}
+				setSearchParam={setSearchParam} />
 			<Microphone 
 				setOutputString={setOutputString}
 				setProgress={setProgress}

@@ -72,8 +72,9 @@ export default AzureCognitiveSearch = ({ setProgress, setOutputString, keyword, 
                         }
                     }
                     // setOutput(JSON.stringify(output[0]));
-                    setOutput(formatted + '\n\n');
-                    setOutputString(formatted + '\n\n-------------\n');
+                    // setOutput(formatted + '\n\n');
+                    setOutputString(formatted + '\n\n');
+                    setProgress('Azure Cognitive Search Results');
                 }
             }
         ).catch(
